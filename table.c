@@ -9,12 +9,12 @@ int nrows = 0;
 static int cells_count = 0; 
 static int cells_cap = 0; 
 
-void die(const char *msg, int line){
-    if (line > 0){
-        fprintf(stderr, "error: %s (line %d)\n", msg, line);
+void oshibka(const char *gr, int ln){
+    if (ln > 0){
+        fprintf(stderr, "error: %s (line %d)\n", gr, ln);
     }
     else{
-        fprintf(stderr, "error: %s\n", msg);
+        fprintf(stderr, "error: %s\n", gr);
     }
     exit(1);
 }
@@ -23,16 +23,16 @@ char *get_cell(int r, int c){
     return cells[(r + 1) * ncols + c];
 }
 
-static char *read_file(const char *path, int *len){
-    FILE *f = fopen(path, "rb");
+static char *read_file(const char *p, int *len){
+    FILE *f = fopen(p, "rb");
     if (f == NULL){
-        die("not open file", 0);
+        oshibka("not open file", 0);
     }
     int size = 1;
     int n = 0;
     char *text = malloc(size);
     if (text == NULL){
-        die("out of memory", 0);
+        oshibka("out of memory", 0);
     }
     int c;
     while ((c = fgetc(f)) != EOF){
@@ -42,7 +42,7 @@ static char *read_file(const char *path, int *len){
             size *= 2;
             char *tmp = realloc(text, size);
             if (tmp == NULL){
-                die("out of memory", 0);
+                oshibka("out of memory", 0);
             }
             text = tmp;
         }
@@ -62,7 +62,7 @@ static void add_cell(char *value){
         }
         char **tmp = realloc(cells, cells_cap * sizeof(char *));
         if (tmp == NULL){
-            die("out of memory", 0);
+            oshibka("out of memory", 0);
         }
         cells = tmp;
     }
@@ -73,7 +73,7 @@ static void add_cell(char *value){
 static char *make_copy(const char *s, int n){
     char *p = malloc(n + 1);
     if (p == NULL){
-        die("out of memory", 0);
+        oshibka("out of memory", 0);
     }
     memcpy(p, s, n);
     p[n] = '\0';
@@ -84,12 +84,12 @@ static int is_space(char c){
     return c == ' ' || c == '\t';
 }
 
-static int parse_line(const char *s, int len, int line){
+static int parse_line(const char *s, int len, int ln){
     int count = 0;
     int i = 0;
     char *buf = malloc(len + 1);
     if (buf == NULL){
-        die("out of memory", 0);
+        oshibka("out of memory", 0);
     }
     while (1){
         while (i < len && is_space(s[i])){
@@ -117,21 +117,21 @@ static int parse_line(const char *s, int len, int line){
                 }
             }
             if (closed == 0){
-                die("unclosed quote", line);
+                oshibka("unclosed quote", ln);
             }
             add_cell(make_copy(buf, n));
             while (i < len && is_space(s[i])){
                 i++;
             }
             if (i < len && s[i] != ','){
-                die("symbols after closing quote", line);
+                oshibka("symbols after closing quote", ln);
             }
         } 
         else{
             int start = i;
             while (i < len && s[i] != ','){
                 if (s[i] == '"'){
-                    die("quote inside simple field", line);
+                    oshibka("quote inside simple field", ln);
                 }
                 i++;
             }
@@ -156,39 +156,39 @@ static int parse_line(const char *s, int len, int line){
     return count;
 }
 
-void put_file(const char *path){
+void put_file(const char *p){
     int len = 0;
-    char *text = read_file(path, &len);
+    char *text = read_file(p, &len);
     if (len == 0){
-        die("empty file", 0);
+        oshibka("empty file", 0);
     }
     while (len > 0 && text[len - 1] == '\n'){
         len--;
     }
     int pos = 0;
-    int line = 1;  
+    int ln = 1;  
     while(1){
         int end = pos;
         while (end < len && text[end] != '\n'){
             end++;
         }
-        int n = parse_line(text + pos, end - pos, line);
-        if (line == 1){
+        int n = parse_line(text + pos, end - pos, ln);
+        if (ln == 1){
             ncols = n;
             for (int i = 0; i < ncols; i++){
                 if (cells[i] == NULL || cells[i][0] == '\0'){
-                    die("empty column name", line);
+                    oshibka("empty column name", ln);
                 }
                 for (int j = 0; j < i; j++){
                     if (strcmp(cells[i], cells[j]) == 0){
-                        die("duplicate column name", line);
+                        oshibka("duplicate column name", ln);
                     }
                 }
             }
         }
         else{
             if (n != ncols){
-                die("wrong number of fields", line);
+                oshibka("wrong number of fields", ln);
             }
             nrows++;
         }
@@ -196,7 +196,7 @@ void put_file(const char *path){
             break;
         }
         pos = end + 1;
-        line++;
+        ln++;
     }
     free(text);
 }
