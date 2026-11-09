@@ -7,20 +7,20 @@
 
 extern int nrows;
 char *get_cell(int r, int c);
-int check_int(const char *s, long long *value){
-    int minus = 0;
+int check_int(const char *s, long long *znach){
+    int znak = 0;
     if (*s == '+' || *s == '-'){
         if (*s == '-'){
-            minus = 1;
+            znak = 1;
         }
         s++;
     }
     if (*s == '\0'){
         return 0;
     }
-    unsigned long long limit = 9223372036854775807ULL;
-    if (minus){
-        limit = 9223372036854775808ULL;
+    unsigned long long mmax = 9223372036854775807ULL;
+    if (znak){
+        mmax = 9223372036854775808ULL;
     }
     unsigned long long number = 0;
     while (*s != '\0'){
@@ -28,22 +28,22 @@ int check_int(const char *s, long long *value){
             return 0;
         }
         unsigned long long digit = *s - '0';
-        if (number > (limit - digit) / 10){
+        if (number > (mmax - digit) / 10){
             return 0;
         }
         number = number * 10 + digit;
         s++;
     }
-    if (minus){
+    if (znak){
         if (number == 9223372036854775808ULL){
-            *value = -9223372036854775807LL - 1;
+            *znach = -9223372036854775807LL - 1;
         }
         else{
-            *value = -(long long)number;
+            *znach = -(long long)number;
         }
     }
     else{
-        *value = (long long)number;
+        *znach = (long long)number;
     }
     return 1;
 }
@@ -52,21 +52,21 @@ static int check_double(const char *s){
     if (*s == '+' || *s == '-'){
         s++;
     }
-    int before = 0;
+    int dot = 0;
     while (*s >= '0' && *s <= '9'){
         s++;
-        before++;
+        dot++;
     }
-    if (before == 0 || *s != '.'){
+    if (dot == 0 || *s != '.'){
         return 0;
     }
     s++;
-    int after = 0;
+    int posle = 0;
     while (*s >= '0' && *s <= '9'){
         s++;
-        after++;
+        posle++;
     }
-    if (after == 0 || *s != '\0'){
+    if (posle == 0 || *s != '\0'){
         return 0;
     }
     return 1;
