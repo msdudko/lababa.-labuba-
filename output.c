@@ -11,7 +11,6 @@ extern char **cells;
 extern int ncols;
 extern int nrows;
 char *get_cell(int r, int c);
-
 int check_int(const char *s, long long *value);
 int column_type(int c);
 const char *type_name(int type);
@@ -46,8 +45,11 @@ void print_schema(void){
 }
 
 static void print_int_stats(int c){
-    int nulls = 0, count = 0;
-    int positive = 0, negative = 0, even = 0;
+    int nulls = 0;
+    int count = 0;
+    int positive = 0;
+    int negative = 0;
+    int even = 0;
     long long min = 0, max = 0;
     long double sum = 0;
     for (int r = 0; r < nrows; r++){
