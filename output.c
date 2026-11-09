@@ -26,10 +26,11 @@ static void print_name(const char *name){
     putchar('"');
 }
 
-static void print_double(long double x) {
-    if (x == 0.0L) {
+static void print_double(long double x){
+    if (x == 0.0L){
         printf("0.000000");
-    } else {
+    }
+    else{
         printf("%.6Lf", x);
     }
 }
